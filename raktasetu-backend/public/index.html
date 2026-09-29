@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RAKTASETU — Blood Bridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --crimson: #C0152A;
+    --crimson-deep: #8B0010;
+    --crimson-bright: #E8192F;
+    --gold: #D4A853;
+    --gold-light: #F0C97A;
+    --ink: #0D0809;
+    --ink-mid: #1A0C0E;
+    --ink-soft: #2A1418;
+    --cream: #F5EFE6;
+    --cream-dim: #C8BDB4;
+    --white: #FDFAF7;
+    --glass: rgba(192,21,42,0.08);
+    --glass-border: rgba(212,168,83,0.2);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--cream);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--crimson-bright);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, background 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--gold);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.18s ease, width 0.2s, height 0.2s;
+    opacity: 0.7;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  /* ===================== NAVBAR ===================== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(13,8,9,0.95), transparent);
+    backdrop-filter: blur(4px);
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    position: relative;
+  }
+
+  .logo-drop {
+    width: 38px; height: 44px;
+    background: var(--crimson);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px rgba(192,21,42,0.6);
+    animation: pulseDrop 2s ease-in-out infinite;
+  }
+
+  .logo-drop::after {
+    content: '+';
+    color: white;
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  @keyframes pulseDrop {
+    0%, 100% { box-shadow: 0 0 20px rgba(192,21,42,0.6); }
+    50% { box-shadow: 0 0 40px rgba(232,25,47,0.9), 0 0 60px rgba(192,21,42,0.3); }
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: var(--white);
+  }
+
+  .logo-text span { color: var(--crimson-bright); }
+
+  .nav-links {
+    display: flex; align-items: center; gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--gold);
+    transition: width 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-cta {
+    padding: 10px 24px;
+    background: var(--crimson);
+    color: var(--white) !important;
+    border-radius: 2px;
+    font-size: 12px !important;
+    letter-spacing: 2px !important;
+    transition: background 0.3s, transform 0.2s !important;
+  }
+
+  .nav-cta:hover {
+    background: var(--crimson-bright) !important;
+    transform: translateY(-1px);
+  }
+
+  .nav-cta::after { display: none !important; }
+
+  /* ===================== HERO ===================== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 60px 80px;
+  }
+
+  /* Animated blood cell background */
+  .hero-bg {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+
+  .cell {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(192,21,42,0.15);
+    animation: floatCell linear infinite;
+  }
+
+  @keyframes floatCell {
+    0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(192,21,42,0.15) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: breathe 4s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  .hero-left {}
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    background: var(--glass);
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--crimson-bright);
+    border-radius: 50%;
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 5.5vw, 76px);
+    font-weight: 600;
+    line-height: 1.05;
+    margin-bottom: 10px;
+    animation: fadeUp 0.9s 0.1s ease both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--crimson-bright);
+  }
+
+  .hero-title .accent-line {
+    display: block;
+    color: var(--gold-light);
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .hero-tagline {
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--cream-dim);
+    max-width: 480px;
+    margin: 24px 0 40px;
+    padding-left: 18px;
+    border-left: 2px solid var(--crimson);
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  .hero-tagline strong {
+    color: var(--cream);
+    font-weight: 500;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeUp 1.1s 0.3s ease both;
+  }
+
+  .btn-login {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  .btn-login::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .btn-login:hover::before { opacity: 1; }
+
+  .btn-donor {
+    background: var(--crimson);
+    color: var(--white);
+    border: 1px solid var(--crimson);
+  }
+
+  .btn-donor:hover {
+    background: var(--crimson-bright);
+    transform: translateX(6px);
+    box-shadow: -6px 0 0 0 var(--gold);
+  }
+
+  .btn-org {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(212,168,83,0.3);
+  }
+
+  .btn-org:hover {
+    border-color: var(--gold);
+    color: var(--gold-light);
+    transform: translateX(6px);
+    box-shadow: -6px 0 0 0 var(--crimson);
+  }
+
+  .btn-admin {
+    background: transparent;
+    color: var(--cream-dim);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .btn-admin:hover {
+    border-color: rgba(255,255,255,0.2);
+    color: var(--cream);
+    transform: translateX(6px);
+  }
+
+  .btn-arrow {
+    font-size: 18px;
+    transition: transform 0.3s;
+  }
+
+  .btn-login:hover .btn-arrow { transform: translateX(6px); }
+
+  /* HERO RIGHT - Blood ID card */
+  .hero-right {
+    animation: fadeUp 1.2s 0.4s ease both;
+  }
+
+  .id-card {
+    background: linear-gradient(135deg, var(--ink-mid) 0%, var(--ink-soft) 100%);
+    border: 1px solid rgba(192,21,42,0.3);
+    border-radius: 16px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,168,83,0.1);
+  }
+
+  .id-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(192,21,42,0.2), transparent);
+    border-radius: 50%;
+  }
+
+  .id-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .id-card-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: var(--crimson);
+  }
+
+  .id-card-type {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 4px 10px;
+    border: 1px solid rgba(212,168,83,0.3);
+    border-radius: 100px;
+  }
+
+  .donor-id-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 6px;
+    color: var(--white);
+    margin-bottom: 8px;
+    text-shadow: 0 0 40px rgba(192,21,42,0.5);
+  }
+
+  .donor-id-display span { color: var(--crimson-bright); }
+
+  .id-subtitle {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-bottom: 32px;
+  }
+
+  .id-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(212,168,83,0.3), transparent);
+    margin: 24px 0;
+  }
+
+  .id-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  .id-stat {
+    text-align: center;
+  }
+
+  .id-stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--white);
+    display: block;
+  }
+
+  .id-stat-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .blood-type-badge {
+    display: inline-block;
+    background: var(--crimson);
+    color: white;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+
+  .eligibility-bar {
+    margin-top: 24px;
+  }
+
+  .elig-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--cream-dim);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .elig-track {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .elig-fill {
+    height: 100%;
+    width: 73%;
+    background: linear-gradient(to right, var(--crimson), var(--gold));
+    border-radius: 2px;
+    animation: fillBar 2s 1s ease both;
+    transform-origin: left;
+  }
+
+  @keyframes fillBar {
+    0% { width: 0; }
+    100% { width: 73%; }
+  }
+
+  /* ===================== STATS BAR ===================== */
+  .stats-bar {
+    padding: 40px 60px;
+    background: var(--ink-mid);
+    border-top: 1px solid rgba(212,168,83,0.08);
+    border-bottom: 1px solid rgba(212,168,83,0.08);
+    position: relative; z-index: 1;
+  }
+
+  .stats-inner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .stat-item {
+    text-align: center;
+    position: relative;
+  }
+
+  .stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: 20%;
+    height: 60%;
+    width: 1px;
+    background: rgba(212,168,83,0.15);
+  }
+
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 46px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    display: block;
+  }
+
+  .stat-number em {
+    font-style: normal;
+    color: var(--crimson-bright);
+    font-size: 0.6em;
+    vertical-align: super;
+  }
+
+  .stat-desc {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ===================== SECTION SHARED ===================== */
+  section {
+    padding: 100px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 30px; height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 4vw, 58px);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 15px;
+    color: var(--cream-dim);
+    max-width: 500px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  /* ===================== FEATURES ===================== */
+  .features-section {
+    background: var(--ink);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+    max-width: 1200px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  .feature-card {
+    background: var(--ink-mid);
+    padding: 44px 36px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: none;
+  }
+
+  .feature-card:hover {
+    background: var(--ink-soft);
+  }
+
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--crimson), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .feature-card:hover::after { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 52px; height: 52px;
+    background: rgba(192,21,42,0.12);
+    border: 1px solid rgba(192,21,42,0.25);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 24px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .feature-card:hover .feature-icon {
+    background: rgba(192,21,42,0.2);
+    border-color: var(--crimson);
+  }
+
+  .feature-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+
+  .feature-desc {
+    font-size: 13.5px;
+    color: var(--cream-dim);
+    line-height: 1.75;
+    font-weight: 300;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 4px 10px;
+    border: 1px solid rgba(212,168,83,0.2);
+    border-radius: 2px;
+  }
+
+  /* ===================== HOW IT WORKS ===================== */
+  .flow-section {
+    background: var(--ink-mid);
+  }
+
+  .flow-header {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+  }
+
+  .flow-tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 0;
+    max-width: 1200px;
+    margin-left: auto; margin-right: auto;
+    margin-bottom: 0;
+  }
+
+  .flow-tab {
+    padding: 14px 28px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    cursor: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+    position: relative;
+    bottom: -1px;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+  }
+
+  .flow-tab.active {
+    color: var(--white);
+    border-bottom-color: var(--crimson);
+  }
+
+  .flow-tab:hover { color: var(--cream); }
+
+  .flow-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 60px;
+    display: none;
+  }
+
+  .flow-content.active { display: block; }
+
+  .flow-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-steps::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(to right, var(--crimson), var(--gold), var(--crimson));
+    opacity: 0.3;
+  }
+
+  .flow-step {
+    text-align: center;
+    padding: 0 20px;
+    position: relative;
+  }
+
+  .step-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 1px solid var(--crimson);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--crimson-bright);
+    margin: 0 auto 20px;
+    position: relative;
+    z-index: 2;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .flow-step:hover .step-num {
+    background: var(--crimson);
+    color: var(--white);
+    border-color: var(--crimson);
+  }
+
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 12.5px;
+    color: var(--cream-dim);
+    line-height: 1.7;
+  }
+
+  /* ===================== AI ENGINE ===================== */
+  .ai-section {
+    background: var(--ink);
+    overflow: hidden;
+  }
+
+  .ai-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .ai-visual {
+    position: relative;
+    height: 440px;
+  }
+
+  .radar-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(192,21,42,0.2);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: radarPulse 3s ease-in-out infinite;
+  }
+
+  .radar-ring:nth-child(1) { width: 100px; height: 100px; animation-delay: 0s; }
+  .radar-ring:nth-child(2) { width: 200px; height: 200px; animation-delay: 0.5s; }
+  .radar-ring:nth-child(3) { width: 300px; height: 300px; animation-delay: 1s; }
+  .radar-ring:nth-child(4) { width: 400px; height: 400px; animation-delay: 1.5s; border-color: rgba(212,168,83,0.1); }
+
+  @keyframes radarPulse {
+    0% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.95); }
+    50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.95); }
+  }
+
+  .radar-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    background: var(--crimson);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 40px rgba(192,21,42,0.6);
+    animation: centerPulse 2s ease-in-out infinite;
+    z-index: 2;
+  }
+
+  @keyframes centerPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(192,21,42,0.6); }
+    50% { box-shadow: 0 0 60px rgba(232,25,47,0.9), 0 0 100px rgba(192,21,42,0.3); }
+  }
+
+  .donor-dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--gold);
+    border-radius: 50%;
+    border: 1px solid var(--gold-light);
+    animation: orbitDot linear infinite;
+    z-index: 2;
+  }
+
+  .donor-dot::before {
+    content: attr(data-id);
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--gold);
+    white-space: nowrap;
+    letter-spacing: 1px;
+  }
+
+  @keyframes orbitDot {
+    0% { transform: rotate(0deg) translateX(var(--r)) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(var(--r)) rotate(-360deg); }
+  }
+
+  .ai-content {}
+
+  .ai-features {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-feature-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: var(--ink-mid);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: border-color 0.3s;
+    cursor: none;
+  }
+
+  .ai-feature-item:hover {
+    border-color: rgba(192,21,42,0.3);
+  }
+
+  .ai-feat-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .ai-feat-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .ai-feat-desc {
+    font-size: 13px;
+    color: var(--cream-dim);
+    line-height: 1.6;
+  }
+
+  /* ===================== BLOOD INVENTORY ===================== */
+  .inventory-section {
+    background: var(--ink-mid);
+  }
+
+  .inventory-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .blood-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 16px;
+    margin-top: 60px;
+  }
+
+  .blood-card {
+    background: var(--ink);
+    border: 1px solid rgba(192,21,42,0.15);
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: none;
+  }
+
+  .blood-card:hover {
+    border-color: var(--crimson);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  .blood-card.critical {
+    border-color: var(--crimson);
+    animation: criticalPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes criticalPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192,21,42,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(192,21,42,0); }
+  }
+
+  .blood-type {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--white);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .blood-units {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--white);
+    display: block;
+  }
+
+  .blood-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .blood-bar {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 12px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .blood-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .fill-critical { background: #FF3344; width: 12%; }
+  .fill-low { background: #FF8C42; width: 28%; }
+  .fill-medium { background: var(--gold); width: 55%; }
+  .fill-good { background: #4CAF50; width: 80%; }
+
+  .critical-tag {
+    position: absolute;
+    top: 8px; right: 8px;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--crimson);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  /* ===================== DONOR ID SECTION ===================== */
+  .id-section {
+    background: var(--ink);
+    text-align: center;
+  }
+
+  .id-section-inner {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .id-formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 60px 0;
+    flex-wrap: wrap;
+  }
+
+  .id-part {
+    text-align: center;
+  }
+
+  .id-part-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    letter-spacing: 4px;
+    color: var(--white);
+    display: block;
+    line-height: 1;
+  }
+
+  .id-part-val.city { color: var(--gold); }
+  .id-part-val.sep { color: var(--crimson); font-size: 48px; }
+  .id-part-val.uid { color: var(--crimson-bright); }
+
+  .id-part-lbl {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-top: 8px;
+    display: block;
+  }
+
+  .id-examples {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .id-example {
+    background: var(--ink-mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 20px;
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: none;
+  }
+
+  .id-example:hover {
+    border-color: var(--crimson);
+    transform: translateY(-4px);
+  }
+
+  .id-example-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: var(--white);
+    display: block;
+  }
+
+  .id-example-city {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ===================== SECURITY ===================== */
+  .security-section {
+    background: var(--ink-soft);
+  }
+
+  .security-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .security-list {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sec-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: padding-left 0.3s;
+    cursor: none;
+  }
+
+  .sec-item:hover { padding-left: 8px; }
+
+  .sec-dot {
+    width: 8px; height: 8px;
+    background: var(--crimson);
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px var(--crimson);
+  }
+
+  .sec-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .sec-desc {
+    font-size: 12.5px;
+    color: var(--cream-dim);
+    line-height: 1.6;
+  }
+
+  .security-visual {
+    background: var(--ink-mid);
+    border: 1px solid rgba(192,21,42,0.2);
+    border-radius: 16px;
+    padding: 40px;
+    font-family: 'DM Sans', monospace;
+    font-size: 12px;
+    line-height: 2;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .security-visual::before {
+    content: 'SECURITY PROTOCOL — ACTIVE';
+    position: absolute;
+    top: 16px; right: 20px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
+
+  .code-line { display: flex; gap: 16px; }
+  .code-key { color: var(--gold); }
+  .code-val { color: #4CAF50; }
+  .code-comment { color: rgba(255,255,255,0.25); }
+
+  /* ===================== IMPACT / CTA ===================== */
+  .cta-section {
+    background: var(--crimson-deep);
+    text-align: center;
+    padding: 120px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(232,25,47,0.3), transparent 70%);
+  }
+
+  .cta-inner {
+    position: relative; z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .cta-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+
+  .cta-subtitle {
+    font-size: 16px;
+    color: rgba(245,239,230,0.7);
+    font-weight: 300;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    padding: 16px 40px;
+    background: var(--white);
+    color: var(--crimson);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: none;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+  }
+
+  .btn-outline-white {
+    padding: 16px 40px;
+    background: transparent;
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.4);
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: none;
+  }
+
+  .btn-outline-white:hover {
+    border-color: var(--white);
+    transform: translateY(-3px);
+  }
+
+  /* ===================== FOOTER ===================== */
+  footer {
+    background: #060304;
+    padding: 60px;
+    position: relative; z-index: 1;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .footer-brand .logo-text {
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .footer-tagline {
+    font-size: 13px;
+    color: var(--cream-dim);
+    line-height: 1.8;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .footer-col-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-links a {
+    font-size: 13px;
+    color: var(--cream-dim);
+    text-decoration: none;
+    transition: color 0.2s, padding-left 0.2s;
+    display: block;
+  }
+
+  .footer-links a:hover {
+    color: var(--cream);
+    padding-left: 6px;
+  }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 32px auto 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+  }
+
+  .footer-copy span { color: var(--crimson); }
+
+  .footer-mission {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* ===================== ANIMATIONS ===================== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--ink); }
+  ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 2px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-content { grid-template-columns: 1fr; gap: 40px; }
+    .hero-right { display: none; }
+    section { padding: 60px 24px; }
+    .stats-inner { grid-template-columns: repeat(2,1fr); gap: 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .flow-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
+    .flow-steps::before { display: none; }
+    .ai-inner { grid-template-columns: 1fr; }
+    .ai-visual { height: 280px; }
+    .blood-grid { grid-template-columns: repeat(4,1fr); }
+    .id-examples { grid-template-columns: repeat(2,1fr); }
+    .security-inner { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .stats-bar { padding: 40px 24px; }
+    .id-formula { gap: 8px; }
+    .id-part-val { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-drop"></div>
+    <span class="logo-text">RAKTA<span>SETU</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#ai">AI Engine</a></li>
+    <li><a href="#inventory">Inventory</a></li>
+    <li><a href="#register" class="nav-cta">Register Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Real-Time Blood Network — India
+      </div>
+      <h1 class="hero-title">
+        <em>Bridging</em> the<br>
+        <span class="accent-line">gap between</span>
+        Blood & Life
+      </h1>
+      <p class="hero-tagline">
+        <strong>We are building a system that ensures no life is lost due to lack of blood.</strong><br>
+        RAKTASETU connects donors, hospitals and organizations in real-time — intelligently, securely, instantly.
+      </p>
+      <div class="hero-actions">
+        <a href="donor.html" class="btn-login btn-donor">
+          <span>🩸 Login as Donor</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="organization.html" class="btn-login btn-org">
+          <span>🏥 Login as Organization</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="admin.html" class="btn-login btn-admin">
+          <span>🔐 Login as Admin</span>
+          <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="id-card">
+        <div class="id-card-header">
+          <span class="id-card-logo">RAKTASETU</span>
+          <span class="id-card-type">Donor Card</span>
+        </div>
+        <div class="donor-id-display"><span>PNQ</span>-8F3A2</div>
+        <div class="id-subtitle">Unique Donor Identifier · Pune</div>
+        <div class="id-divider"></div>
+        <div class="id-stats">
+          <div class="id-stat">
+            <span class="id-stat-value"><span class="blood-type-badge">B+</span></span>
+            <span class="id-stat-label">Blood Group</span>
+          </div>
+          <div class="id-stat">
+            <span class="id-stat-value" style="color:var(--gold)">7</span>
+            <span class="id-stat-label">Donations</span>
+          </div>
+          <div class="id-stat">
+            <span class="id-stat-value" style="color:#4CAF50">700</span>
+            <span class="id-stat-label">Points</span>
+          </div>
+        </div>
+        <div class="eligibility-bar">
+          <div class="elig-label">
+            <span>Eligibility</span>
+            <span style="color:var(--gold)">73 days — Eligible in 17d</span>
+          </div>
+          <div class="elig-track">
+            <div class="elig-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <span class="stat-number">4.2<em>L+</em></span>
+      <span class="stat-desc">Registered Donors</span>
+    </div>
+    <div class="stat-item reveal">
+      <span class="stat-number">1,800<em>+</em></span>
+      <span class="stat-desc">Partner Organizations</span>
+    </div>
+    <div class="stat-item reveal">
+      <span class="stat-number">98<em>%</em></span>
+      <span class="stat-desc">Request Fulfillment</span>
+    </div>
+    <div class="stat-item reveal">
+      <span class="stat-number">12<em>min</em></span>
+      <span class="stat-desc">Avg. Match Time</span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-label">Core Features</div>
+    <h2 class="section-title">Everything a life-saving<br>network needs</h2>
+    <p class="section-subtitle">Built for speed, security, and scale — from a single donor to a nationwide grid.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-name">AI Smart Matching</div>
+      <p class="feature-desc">Intelligently ranks donors using distance weight, blood group priority, and last donation date to find the best match instantly.</p>
+      <span class="feature-tag">Proprietary Algorithm</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🚨</div>
+      <div class="feature-name">Emergency Mode</div>
+      <p class="feature-desc">One tap sends an alert to all nearby eligible donors and partner hospitals simultaneously with real-time coordination.</p>
+      <span class="feature-tag">Real-Time</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">👻</div>
+      <div class="feature-name">Anonymous Donation</div>
+      <p class="feature-desc">Donors can toggle anonymous mode — only their Donor ID is shared with organizations. Full privacy by design.</p>
+      <span class="feature-tag">Privacy First</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🏆</div>
+      <div class="feature-name">Reward System</div>
+      <p class="feature-desc">Earn 1 point per 100ml donated. Redeem for priority blood access, health check vouchers, and partner perks.</p>
+      <span class="feature-tag">Gamified</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">📍</div>
+      <div class="feature-name">Live Blood Inventory</div>
+      <p class="feature-desc">Real-time blood unit availability across all nearby hospitals and blood banks, updated the moment a unit is collected or used.</p>
+      <span class="feature-tag">Live Data</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-name">Bank-Grade Security</div>
+      <p class="feature-desc">AES-256 encryption, JWT authentication, role-based access control, and one-device login restriction for all donor accounts.</p>
+      <span class="feature-tag">AES-256 + JWT</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="flow-section" id="how">
+  <div class="flow-header reveal">
+    <div class="section-label">Flow</div>
+    <h2 class="section-title">How RAKTASETU works</h2>
+    <p class="section-subtitle">Three portals. One mission. Zero preventable deaths.</p>
+  </div>
+
+  <div class="flow-tabs">
+    <button class="flow-tab active" onclick="switchTab('donor', this)">Donor Journey</button>
+    <button class="flow-tab" onclick="switchTab('org', this)">Organization Flow</button>
+    <button class="flow-tab" onclick="switchTab('admin', this)">Admin Panel</button>
+  </div>
+
+  <div class="flow-content active" id="tab-donor">
+    <div class="flow-steps">
+      <div class="flow-step reveal">
+        <div class="step-num">1</div>
+        <div class="step-title">Register & Verify</div>
+        <p class="step-desc">Enter mobile number, verify via OTP, set password, and fill personal details including blood group and address.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">2</div>
+        <div class="step-title">Set Preferences</div>
+        <p class="step-desc">Choose your donation radius (5–50km), enable emergency alerts, and toggle anonymous mode.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">3</div>
+        <div class="step-title">Get Your ID</div>
+        <p class="step-desc">Receive your unique city-coded Donor ID (e.g. PNQ-8F3A2). Your lifesaving identity on the network.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">4</div>
+        <div class="step-title">Donate & Earn</div>
+        <p class="step-desc">Visit matched camps, donate blood, earn points, track your 90-day eligibility cycle, and climb the leaderboard.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-content" id="tab-org">
+    <div class="flow-steps">
+      <div class="flow-step reveal">
+        <div class="step-num">1</div>
+        <div class="step-title">Register & Certify</div>
+        <p class="step-desc">Upload government certificate and wait for admin approval. Multi-device login enabled for organizations.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">2</div>
+        <div class="step-title">Create Blood Camp</div>
+        <p class="step-desc">Add camp location, date, time, and optional gifts. AI auto-notifies all eligible donors in the vicinity.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">3</div>
+        <div class="step-title">Admit Donors</div>
+        <p class="step-desc">Enter Donor ID to instantly fetch eligibility status, health history, and donor profile for admission.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">4</div>
+        <div class="step-title">Record & Update</div>
+        <p class="step-desc">Fill health form, record blood collected, and update live inventory. Analytics dashboard tracks camp performance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-content" id="tab-admin">
+    <div class="flow-steps">
+      <div class="flow-step reveal">
+        <div class="step-num">1</div>
+        <div class="step-title">Verify Organizations</div>
+        <p class="step-desc">Review and approve or reject organization registrations based on uploaded government certificates.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">2</div>
+        <div class="step-title">Monitor Fraud</div>
+        <p class="step-desc">AI flags unusual donation frequency patterns and suspicious behavior for admin review and action.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">3</div>
+        <div class="step-title">Manage Users</div>
+        <p class="step-desc">Full control over donor and organization accounts — suspend, reactivate, or escalate to authorities.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="step-num">4</div>
+        <div class="step-title">System Analytics</div>
+        <p class="step-desc">Nationwide blood demand prediction, supply chain insights, and live operational dashboards.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI ENGINE -->
+<section class="ai-section" id="ai">
+  <div class="ai-inner">
+    <div class="ai-visual">
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-center">🩸</div>
+      <!-- Donor dots will be injected by JS -->
+    </div>
+
+    <div class="ai-content reveal">
+      <div class="section-label">AI Engine</div>
+      <h2 class="section-title">Intelligence that<br>saves lives</h2>
+      <p class="section-subtitle">RAKTASETU's AI engine works 24/7 to match, predict, and protect.</p>
+
+      <div class="ai-features">
+        <div class="ai-feature-item">
+          <div class="ai-feat-icon">🎯</div>
+          <div>
+            <div class="ai-feat-title">Smart Matching Algorithm</div>
+            <p class="ai-feat-desc">Multi-factor ranking using distance weight (40%), blood group priority (35%), and last donation date (25%) for optimal donor selection.</p>
+          </div>
+        </div>
+        <div class="ai-feature-item">
+          <div class="ai-feat-icon">⚠️</div>
+          <div>
+            <div class="ai-feat-title">Risk Detection System</div>
+            <p class="ai-feat-desc">Flags unsafe donors by analyzing health inputs and donation frequency patterns. Protects both donor and recipient.</p>
+          </div>
+        </div>
+        <div class="ai-feature-item">
+          <div class="ai-feat-icon">📈</div>
+          <div>
+            <div class="ai-feat-title">Demand Prediction</div>
+            <p class="ai-feat-desc">Predicts regional blood demand using historical data, seasonal patterns, and event calendars. Proactively mobilizes donors before shortage.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOOD INVENTORY -->
+<section class="inventory-section" id="inventory">
+  <div class="inventory-inner">
+    <div class="reveal">
+      <div class="section-label">Live Inventory</div>
+      <h2 class="section-title">Real-time blood availability</h2>
+      <p class="section-subtitle">Updated instantly as units are donated or used across partner hospitals.</p>
+    </div>
+
+    <div class="blood-grid">
+      <div class="blood-card critical reveal">
+        <span class="critical-tag">CRITICAL</span>
+        <span class="blood-type">O−</span>
+        <span class="blood-units">3</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-critical"></div></div>
+      </div>
+      <div class="blood-card reveal">
+        <span class="blood-type">A+</span>
+        <span class="blood-units">42</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-good"></div></div>
+      </div>
+      <div class="blood-card reveal">
+        <span class="blood-type">A−</span>
+        <span class="blood-units">11</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-medium"></div></div>
+      </div>
+      <div class="blood-card reveal">
+        <span class="blood-type">B+</span>
+        <span class="blood-units">28</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-good"></div></div>
+      </div>
+      <div class="blood-card critical reveal">
+        <span class="critical-tag">LOW</span>
+        <span class="blood-type">B−</span>
+        <span class="blood-units">7</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-low"></div></div>
+      </div>
+      <div class="blood-card reveal">
+        <span class="blood-type">AB+</span>
+        <span class="blood-units">19</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-medium"></div></div>
+      </div>
+      <div class="blood-card critical reveal">
+        <span class="critical-tag">LOW</span>
+        <span class="blood-type">AB−</span>
+        <span class="blood-units">5</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-low"></div></div>
+      </div>
+      <div class="blood-card reveal">
+        <span class="blood-type">O+</span>
+        <span class="blood-units">55</span>
+        <span class="blood-label">Units</span>
+        <div class="blood-bar"><div class="blood-fill fill-good"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DONOR ID SECTION -->
+<section class="id-section reveal">
+  <div class="id-section-inner">
+    <div class="section-label" style="justify-content:center">Donor Identity</div>
+    <h2 class="section-title">Your ID. Short. Unique. Permanent.</h2>
+    <p class="section-subtitle" style="margin:0 auto;text-align:center">City-coded, Base36 encoded — short enough to say aloud, unique enough to last billions of donors.</p>
+
+    <div class="id-formula">
+      <div class="id-part">
+        <span class="id-part-val city">PNQ</span>
+        <span class="id-part-lbl">City Code</span>
+      </div>
+      <div class="id-part">
+        <span class="id-part-val sep">—</span>
+      </div>
+      <div class="id-part">
+        <span class="id-part-val uid">8F3A2</span>
+        <span class="id-part-lbl">Base36 Unique</span>
+      </div>
+    </div>
+
+    <div class="id-examples">
+      <div class="id-example">
+        <span class="id-example-val">PNQ-9X2F1</span>
+        <span class="id-example-city">Pune</span>
+      </div>
+      <div class="id-example">
+        <span class="id-example-val">MUM-A7K3P</span>
+        <span class="id-example-city">Mumbai</span>
+      </div>
+      <div class="id-example">
+        <span class="id-example-val">DEL-7H2LM</span>
+        <span class="id-example-city">Delhi</span>
+      </div>
+      <div class="id-example">
+        <span class="id-example-val">BLR-X91QZ</span>
+        <span class="id-example-city">Bengaluru</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="security-section" id="security">
+  <div class="security-inner">
+    <div>
+      <div class="section-label reveal">Security</div>
+      <h2 class="section-title reveal">Zero compromise<br>on data protection</h2>
+      <p class="section-subtitle reveal">Healthcare data is sacred. Every byte is encrypted. Every access is logged.</p>
+
+      <div class="security-list">
+        <div class="sec-item reveal">
+          <div class="sec-dot"></div>
+          <div>
+            <div class="sec-title">AES-256 Data Encryption</div>
+            <p class="sec-desc">All sensitive data encrypted at rest and in transit. Aadhaar stored as secure hash — never reversible.</p>
+          </div>
+        </div>
+        <div class="sec-item reveal">
+          <div class="sec-dot"></div>
+          <div>
+            <div class="sec-title">JWT Authentication</div>
+            <p class="sec-desc">Stateless token-based auth with short expiry. Refresh token rotation prevents session hijacking.</p>
+          </div>
+        </div>
+        <div class="sec-item reveal">
+          <div class="sec-dot"></div>
+          <div>
+            <div class="sec-title">Role-Based Access Control</div>
+            <p class="sec-desc">Donor, Organization, and Admin roles with strict endpoint-level permissions. Zero privilege escalation.</p>
+          </div>
+        </div>
+        <div class="sec-item reveal">
+          <div class="sec-dot"></div>
+          <div>
+            <div class="sec-title">One-Device Restriction</div>
+            <p class="sec-desc">Donor accounts locked to one device. New login attempt triggers OTP re-verification and existing session termination.</p>
+          </div>
+        </div>
+        <div class="sec-item reveal">
+          <div class="sec-dot"></div>
+          <div>
+            <div class="sec-title">SQL Injection Prevention</div>
+            <p class="sec-desc">Parameterized queries via Spring Data JPA. No raw SQL exposed anywhere in the codebase.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="security-visual reveal">
+      <div class="code-line"><span class="code-key">encryption</span><span class="code-val">: AES-256-GCM</span></div>
+      <div class="code-line"><span class="code-key">auth</span><span class="code-val">: JWT + OTP</span></div>
+      <div class="code-line"><span class="code-key">transport</span><span class="code-val">: TLS 1.3</span></div>
+      <div class="code-line"><span class="code-comment">// Role-based access</span></div>
+      <div class="code-line"><span class="code-key">roles</span><span>: [</span></div>
+      <div class="code-line" style="padding-left:24px"><span class="code-val">"DONOR"</span><span>,</span></div>
+      <div class="code-line" style="padding-left:24px"><span class="code-val">"ORGANIZATION"</span><span>,</span></div>
+      <div class="code-line" style="padding-left:24px"><span class="code-val">"ADMIN"</span></div>
+      <div class="code-line"><span>]</span></div>
+      <div class="code-line"><span class="code-key">device_lock</span><span class="code-val">: SINGLE_DEVICE</span></div>
+      <div class="code-line"><span class="code-key">aadhaar</span><span class="code-val">: BCRYPT_HASH</span></div>
+      <div class="code-line"><span class="code-key">activity_log</span><span class="code-val">: ENABLED</span></div>
+      <div class="code-line"><span class="code-key">sql_injection</span><span class="code-val">: PREVENTED</span></div>
+      <div class="code-line"><span class="code-comment">// Status</span></div>
+      <div class="code-line"><span class="code-key">status</span><span style="color:#4CAF50">: ALL_SYSTEMS_SECURE ✓</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="register">
+  <div class="cta-inner">
+    <h2 class="cta-title">RAKTASETU is not just an app —<br><em style="font-style:italic;font-family:'Cormorant Garamond',serif">it is a life-saving network.</em></h2>
+    <p class="cta-subtitle">Intelligently connects blood to those who need it, when they need it most. Join thousands of donors already making a difference.</p>
+    <div class="cta-buttons">
+      <a href="donor-register.html" class="btn-primary">Register as Donor</a>
+      <a href="org-register.html" class="btn-outline-white">Register Organization</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-text">RAKTA<span>SETU</span></span>
+      <p class="footer-tagline">"We are building a system that ensures no life is lost due to lack of blood."</p>
+    </div>
+    <div>
+      <span class="footer-col-title">Donors</span>
+      <ul class="footer-links">
+        <li><a href="#">Register</a></li>
+        <li><a href="#">Find Camps</a></li>
+        <li><a href="#">My Dashboard</a></li>
+        <li><a href="#">Leaderboard</a></li>
+        <li><a href="#">Rewards</a></li>
+      </ul>
+    </div>
+    <div>
+      <span class="footer-col-title">Organizations</span>
+      <ul class="footer-links">
+        <li><a href="#">Register</a></li>
+        <li><a href="#">Create Camp</a></li>
+        <li><a href="#">Donor Admission</a></li>
+        <li><a href="#">Analytics</a></li>
+      </ul>
+    </div>
+    <div>
+      <span class="footer-col-title">Platform</span>
+      <ul class="footer-links">
+        <li><a href="#">About RAKTASETU</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">API Docs</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 <span>RAKTASETU</span> — Real-time Accessible Knowledge & Tracking for Availability of Safe Emergency Transfusion Units</span>
+    <span class="footer-mission">Saving Lives · Nationwide</span>
+  </div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) *.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a,button,.feature-card,.ai-feature-item,.id-example,.sec-item,.blood-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+      ring.style.width = '60px'; ring.style.height = '60px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.width = '36px'; ring.style.height = '36px';
+    });
+  });
+
+  // HERO CELLS
+  const heroBg = document.getElementById('heroBg');
+  for (let i = 0; i < 18; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const size = Math.random() * 60 + 20;
+    cell.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*15+8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    heroBg.appendChild(cell);
+  }
+
+  // AI RADAR DOTS
+  const aiVisual = document.querySelector('.ai-visual');
+  const donors = [
+    {id:'PNQ-8F3A2',r:'120px',dur:'8s',delay:'0s'},
+    {id:'MUM-A7K3P',r:'160px',dur:'12s',delay:'2s'},
+    {id:'DEL-7H2LM',r:'90px',dur:'6s',delay:'1s'},
+    {id:'BLR-X91QZ',r:'140px',dur:'10s',delay:'3s'},
+    {id:'PNQ-9X2F1',r:'70px',dur:'7s',delay:'0.5s'},
+  ];
+
+  donors.forEach(d => {
+    const dot = document.createElement('div');
+    dot.className = 'donor-dot';
+    dot.setAttribute('data-id', d.id);
+    dot.style.cssText = `
+      top:50%;left:50%;
+      --r:${d.r};
+      animation-duration:${d.dur};
+      animation-delay:${d.delay};
+    `;
+    aiVisual.appendChild(dot);
+  });
+
+  // TABS
+  function switchTab(name, btn) {
+    document.querySelectorAll('.flow-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.flow-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+  }
+
+  // SCROLL REVEAL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // COUNTER ANIMATION
+  function animateCount(el, target, suffix='') {
+    let start = 0;
+    const duration = 2000;
+    const step = timestamp => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target).toLocaleString() + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  const statsObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const nums = e.target.querySelectorAll('.stat-number');
+        const targets = [420000, 1800, 98, 12];
+        const suffixes = ['+', '+', '%', 'min'];
+        nums.forEach((n, i) => {
+          const em = n.querySelector('em');
+          const suf = em ? em.textContent : '';
+          if (em) em.remove();
+          animateCount(n, targets[i], suffixes[i]);
+        });
+        statsObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  const statsBar = document.querySelector('.stats-bar');
+  if (statsBar) statsObserver.observe(statsBar);
+</script>
+</body>
+</html>
